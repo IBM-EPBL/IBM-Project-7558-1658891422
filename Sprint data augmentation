@@ -1,0 +1,71 @@
+lines (35 sloc)  2.08 KB
+
+Importing Required Libraries
+
+from keras.preprocessing.image import ImageDataGenerator
+
+import cv2
+
+from os import listdir
+
+import time
+
+Data Augment function
+
+def augment_data(file_dir, n_generated_samples, save_to_dir):
+
+    data_gen = ImageDataGenerator(rotation_range=30, 
+
+                                  width_shift_range=0.1,
+
+                                  height_shift_range=0.15, 
+
+                                  shear_range=0.25, 
+
+                                  zoom_range = 0.2,
+
+                                  horizontal_flip=True, 
+
+                                  vertical_flip=False, 
+
+                                  fill_mode='nearest',
+
+                                  brightness_range=(0.5,1.2)
+
+                                 )
+
+    for filename in listdir(file_dir):
+
+        image = cv2.imread(file_dir + '/' + filename)
+
+        image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+
+        image = image.reshape((1,)+image.shape)
+
+        save_prefix = 'aug_' + filename[:-4]    
+
+        i=0
+
+        for batch in data_gen.flow(x=image, batch_size=1, save_to_dir=save_to_dir,
+
+                                   save_prefix=save_prefix, save_format='jpg'):
+
+            i += 1
+
+            if i > n_generated_samples:
+
+                break
+
+augmented_data_path = '/content/Augument Dataset'
+
+augment_data(file_dir='/content/Digital Naturalist Dataset/Bird/Great Indian Bustard Bird', n_generated_samples=20, save_to_dir=augmented_data_path+'/GIB_AUG')
+
+augment_data(file_dir='/content/Digital Naturalist Dataset/Bird/Spoon Billed Sandpiper Bird', n_generated_samples=20, save_to_dir=augmented_data_path+'/SPS_AUG')
+
+augment_data(file_dir='/content/Digital Naturalist Dataset/Flower/Corpse Flower', n_generated_samples=20, save_to_dir=augmented_data_path+'/Corpse_AUG')
+
+augment_data(file_dir='/content/Digital Naturalist Dataset/Flower/Lady Slipper Orchid Flower', n_generated_samples=20, save_to_dir=augmented_data_path+'/LS_Orchid_AUG')
+
+augment_data(file_dir='/content/Digital Naturalist Dataset/Mammal/Pangolin Mammal', n_generated_samples=20, save_to_dir=augmented_data_path+'/LS_Pangolin_AUG')
+
+augment_data(file_dir='/
