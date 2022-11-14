@@ -1,0 +1,238 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#initializing the datagenerator
+
+datagen = tf.keras.preprocessing.image.ImageDataGenerator()
+
+#loading the train dataset from the directory
+
+traindata= datagen.flow_from_directory(directory="/content/Train Data",target_size=(224,224),batch_size=100)
+
+#loading the test dataset from the directory
+
+testdata= datagen.flow_from_directory(directory="/content/Test Data",target_size=(224,224),batch_size=100)
+
+Found 2916 images belonging to 6 classes.
+
+Found 1427 images belonging to 6 classes.
+
+#listing the found classes from train dataset
+
+traindata.class_indices
+
+{'Corpse_AUG': 0,
+
+ 'GIB_AUG': 1,
+
+ 'LS_Orchid_AUG': 2,
+
+ 'LS_Pangolin_AUG': 3,
+
+ 'SPS_AUG': 4,
+
+ 'SW_Deer_AUG': 5}
+
+Model Checkpoint and Early Stopping
+
+# Creating a model checkpoint which monitors the accuracy of the model and saves the checkpoint
+
+mc = ModelCheckpoint(filepath = "./model.h5",
+
+                     monitor = 'accuracy',
+
+                     verbose = 1,
+
+                     save_best_only = True)
+
+# Creating a earlystopping object which stop training once the model performance stops improving on a hold out validation dataset
+
+es = EarlyStopping(monitor = "accuracy",
+
+                   min_delta = 0.01,
+
+                   verbose = 1)
+
+call_back = [mc,es]
+
+Model fitting
+
+# Fitting the model 
+
+modelHistory = model.fit(traindata, steps_per_epoch=60,epochs = 30,callbacks=call_back,validation_data=testdata)
+
+Epoch 1/30
+
+30/60 [==============>...............] - ETA: 6s - loss: 1.1722 - accuracy: 0.9098
+
+WARNING:tensorflow:Your input ran out of data; interrupting training. Make sure that your dataset or generator can generate at least `steps_per_epoch * epochs` batches (in this case, 1800 batches). You may need to use the repeat() function when building your dataset.
+
+Epoch 1: accuracy improved from 0.86831 to 0.90981, saving model to ./model.h5
+
+60/60 [==============================] - 13s 208ms/step - loss: 1.1722 - accuracy: 0.9098 - val_loss: 0.6965 - val_accuracy: 0.9636
+
+Exporting the model
+
+# Exporting the model to json 
+
+model_json = model.to_json()
+
+with open("DigitalNaturalist.json", "w") as json_file:
+
+    json_file.write(model_json)
+
+# Exporting the model weights
+
+model.save_weights("DigitalNaturalist")
+
+print("Saved model to disk")
+
+Saved model to disk
+
+Testing the model
+
+#Testing the model 
+
+predictions = ["Corpse Flower", 
+
+               "Great Indian Bustard", 
+
+               "Lady's slipper orchid", 
+
+               "Pangolin", 
+
+               "Spoon Billed Sandpiper", 
+
+               "Seneca White Deer"
+
+              ]
+
+path = '/content/Test Data/GIB_AUG/aug_download (1)_0_2011.jpg'
+
+ime = tf.keras.utils.load_img(path,target_size=(224,224))
+
+i = tf.keras.preprocessing.image.img_to_array(ime)
+
+i = preprocess_input(i)
+
+input = np.array([i])
+
+pred = model.predict(input)
+
+predictions[np.argmax(pred)]
+
+1/1 [==============================] - 0s 39ms/step
+
+"Great Indian Bustard"
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
